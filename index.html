@@ -1191,8 +1191,16 @@ function closeDeleteModal(){
 }
 function performDelete(){
   if(deleteTargetSl == null) return;
-  state.people = state.people.filter(p=>p.sl !== deleteTargetSl);
-  persist();
+  state.people = state.people.filter(p => p.sl !== deleteTargetSl);
+
+// Reassign serial numbers
+state.people.forEach((person, index) => {
+    person.sl = index + 1;
+});
+
+state.nextSl = state.people.length + 1;
+
+persist();
   closeDeleteModal();
   renderTable();
   showToast("Record removed", "success");
