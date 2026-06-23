@@ -1333,9 +1333,13 @@ function showToast(msg, type=''){
 /* ================= INIT ================= */
 async function init(){
   const ok = await loadState();
-  if(!ok) return; // config error already shown
+  if(!ok) return;
+
   document.getElementById('loadingScreen').style.display = 'none';
-  setAdminUI(false); // land directly on the viewer register
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('loginScreen').style.display = 'none';
+
+  setAdminUI(false);
   startPolling();
 }
 init();
