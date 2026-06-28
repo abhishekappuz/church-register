@@ -565,6 +565,7 @@
 <div class="loading-screen" id="loadingScreen">
   <div class="loading-spinner"></div>
   <p>Loading the register…</p>
+  <p id="debugStep" style="font-family:monospace; font-size:11px; color:#999; margin-top:18px;">Step: starting…</p>
 </div>
 
 <!-- ================= CONFIG ERROR (shown if Supabase keys are missing/wrong) ================= -->
@@ -766,16 +767,31 @@ const ROW_ID = "main";
 const POLL_INTERVAL_MS = 8000; // how often viewers/admins refresh from the shared database
 
 let supabaseClient = null;
+function debugStep(msg){
+  const el = document.getElementById('debugStep');
+  if(el) el.textContent = 'Step: ' + msg;
+  console.log('DEBUG STEP:', msg);
+}
+
 function getClient(){
   try{
+    debugStep('checking Supabase library...');
     if(!supabaseClient){
-      if(!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('YOUR_')){
+      if(!window.supabase){
+        debugStep('FAILED — window.supabase is undefined (CDN script did not load)');
         return null;
       }
+      if(!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('YOUR_')){
+        debugStep('FAILED — URL/key missing or placeholder');
+        return null;
+      }
+      debugStep('creating Supabase client...');
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
+    debugStep('Supabase client ready');
     return supabaseClient;
   }catch(e){
+    debugStep('FAILED creating client: ' + (e.message || e));
     console.error('Failed to create Supabase client:', e);
     return null;
   }
@@ -797,18 +813,21 @@ let localEditClearTimer = null;
 
 /* ================= PERSISTENCE (Supabase) ================= */
 async function loadState(){
+  debugStep('loadState started');
   const client = getClient();
   if(!client){
     showConfigError(!window.supabase ? 'Supabase library did not load (network/CDN blocked?)' : 'Missing or placeholder URL/key');
     return false;
   }
   try{
+    debugStep('fetching data from database...');
     const { data, error } = await client
       .from('register')
       .select('data, updated_at')
       .eq('id', ROW_ID)
       .single();
 
+    debugStep('database responded');
     if(error) throw error;
 
     if(data && data.data){
@@ -1356,14 +1375,17 @@ const startupSafetyTimer = setTimeout(()=>{
 }, 8000);
 
 async function init(){
+  debugStep('init() called — script is running');
   try{
     const ok = await loadState();
     clearTimeout(startupSafetyTimer);
     if(startupTimedOut) return;
     if(!ok) return; // config error already shown
+    debugStep('building page...');
     document.getElementById('loadingScreen').style.display = 'none';
     setAdminUI(false); // land directly on the viewer register
     startPolling();
+    debugStep('done');
   }catch(e){
     clearTimeout(startupSafetyTimer);
     console.error('Startup failed:', e);
