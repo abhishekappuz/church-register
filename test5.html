@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body style="font-family:sans-serif; padding:20px;">
+<h2>Data integrity test</h2>
+<div id="out" style="white-space:pre-wrap; font-size:13px;">Loading...</div>
+<script>
+const SUPABASE_URL = "https://esepljirgmqtswywujwa.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZXBsamlyZ21xdHN3eXd1andhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMzQ3NzQsImV4cCI6MjA5NzcxMDc3NH0.xMgAOufvOlevwTBJ5ES686bp93W60MtrcMeY5NXRaeQ";
+const out = document.getElementById('out');
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+client.from('register').select('data, updated_at').eq('id','main').single().then(({data, error})=>{
+  if(error){ out.textContent = 'ERROR: ' + JSON.stringify(error); return; }
+  const state = data.data;
+  let report = 'Total people: ' + state.people.length + '\n';
+  report += 'Total funds: ' + state.funds.length + '\n\n';
+
+  let badRecords = [];
+  state.people.forEach((p, i) => {
+    if(typeof p.name !== 'string' || typeof p.address !== 'string' || typeof p.sl !== 'number'){
+      badRecords.push('Index ' + i + ': sl=' + JSON.stringify(p.sl) + ' name=' + JSON.stringify(p.name) + ' address=' + JSON.stringify(p.address));
+    }
+  });
+
+  report += 'Records with bad/missing name, address, or sl: ' + badRecords.length + '\n';
+  if(badRecords.length > 0){
+    report += badRecords.slice(0, 10).join('\n');
+  }
+
+  // Try to actually simulate the exact renderTable crash point
+  try{
+    state.people.forEach(p => {
+      String(p.sl).includes('');
+      p.name.toLowerCase().includes('');
+      p.address.toLowerCase().includes('');
+    });
+    report += '\n\nSimulated filter logic: NO ERRORS';
+  }catch(e){
+    report += '\n\nSimulated filter logic CRASHED: ' + e.message;
+  }
+
+  out.textContent = report;
+}).catch(e=>{
+  out.textContent = 'EXCEPTION: ' + (e.message || JSON.stringify(e));
+});
+</script>
+</body>
+</html>
