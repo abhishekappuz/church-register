@@ -556,7 +556,7 @@
     *{transition:none !important;}
   }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js" defer onerror="window.__supabaseLoadFailed=true; console.warn('unpkg failed, trying jsdelivr fallback'); var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'; s.onerror=function(){console.warn('jsdelivr fallback also failed, trying cdnjs');var s2=document.createElement('script');s2.src='https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.7/supabase.min.js';document.head.appendChild(s2);}; document.head.appendChild(s);"></script>
 </head>
 <body>
 
@@ -1369,13 +1369,31 @@ const startupSafetyTimer = setTimeout(()=>{
   const loadingEl = document.getElementById('loadingScreen');
   if(loadingEl && loadingEl.style.display !== 'none'){
     startupTimedOut = true;
-    showConfigError('Timed out after 8 seconds — the page may have no internet, or the database is unreachable');
+    showConfigError('Timed out after 15 seconds — the page may have no internet, or the database is unreachable');
   }
-}, 8000);
+}, 15000);
+
+function waitForSupabaseLibrary(maxWaitMs){
+  return new Promise((resolve)=>{
+    const start = Date.now();
+    const check = ()=>{
+      if(window.supabase){
+        resolve(true);
+      } else if(Date.now() - start > maxWaitMs){
+        resolve(false);
+      } else {
+        debugStep('waiting for library to load... (' + Math.round((Date.now()-start)/1000) + 's)');
+        setTimeout(check, 300);
+      }
+    };
+    check();
+  });
+}
 
 async function init(){
   debugStep('init() called — script is running');
   try{
+    await waitForSupabaseLibrary(12000);
     const ok = await loadState();
     clearTimeout(startupSafetyTimer);
     if(startupTimedOut) return;
