@@ -572,6 +572,7 @@
   <div class="config-error">
     <h3>Connection not set up</h3>
     <p>This page couldn't connect to the shared database. Check that <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> near the bottom of this file's script are filled in correctly, and that the <code>register</code> table exists in your Supabase project.</p>
+    <p id="configErrorDetail" style="display:none; font-family:monospace; font-size:11.5px; background:rgba(0,0,0,0.06); padding:8px 10px; border-radius:4px; word-break:break-word;"></p>
   </div>
 </div>
 
@@ -766,13 +767,18 @@ const POLL_INTERVAL_MS = 8000; // how often viewers/admins refresh from the shar
 
 let supabaseClient = null;
 function getClient(){
-  if(!supabaseClient){
-    if(!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('YOUR_')){
-      return null;
+  try{
+    if(!supabaseClient){
+      if(!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('YOUR_')){
+        return null;
+      }
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return supabaseClient;
+  }catch(e){
+    console.error('Failed to create Supabase client:', e);
+    return null;
   }
-  return supabaseClient;
 }
 
 /* ================= STATE ================= */
@@ -793,7 +799,7 @@ let localEditClearTimer = null;
 async function loadState(){
   const client = getClient();
   if(!client){
-    showConfigError();
+    showConfigError(!window.supabase ? 'Supabase library did not load (network/CDN blocked?)' : 'Missing or placeholder URL/key');
     return false;
   }
   try{
@@ -821,7 +827,7 @@ async function loadState(){
     return true;
   }catch(e){
     console.error(e);
-    showConfigError();
+    showConfigError((e && (e.message || e.toString())) || JSON.stringify(e));
     return false;
   }
 }
@@ -833,9 +839,14 @@ function initFreshState(){
     nextFundId: DEFAULT_FUND_LABELS.length + 1
   };
 }
-function showConfigError(){
+function showConfigError(detail){
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('configErrorScreen').style.display = 'block';
+  const detailEl = document.getElementById('configErrorDetail');
+  if(detailEl){
+    detailEl.textContent = detail ? ('Technical detail: ' + detail) : '';
+    detailEl.style.display = detail ? 'block' : 'none';
+  }
 }
 
 let hasUnsavedChanges = false;
@@ -1092,7 +1103,7 @@ function renderTable(){
     state.funds.forEach(fund=>{
       const val = (person.funds && person.funds[fund.id]) || 0;
       if(isAdmin){
-        html += `<td class="fund-col"><input type="number" min="0" step="1" inputmode="numeric" value="${val === 0 ? '' : val}" placeholder="0" oninput="updateFund(${person.sl}, ${fund.id}, this.value)"></td>`;
+        html += `<td class="fund-col"><input type="text" inputmode="numeric" value="${val === 0 ? '' : val}" placeholder="0" onchange="updateFund(${person.sl}, ${fund.id}, this.value)"></td>`;
       } else {
         html += `<td class="fund-col">${val ? formatNumber(val) : '—'}</td>`;
       }
@@ -1132,10 +1143,14 @@ function updateFund(sl, fundId, value){
   const person = state.people.find(p=>p.sl===sl);
   if(!person) return;
   if(!person.funds) person.funds = {};
-  const num = value === '' ? 0 : Math.max(0, Number(value) || 0);
-  person.funds[fundId] = num;
+  let current = Number(person.funds[fundId] || 0);
+  value = String(value).trim();
+  if(value.startsWith("+")) current += Number(value.slice(1)) || 0;
+  else if(value.startsWith("-")){ current -= Number(value.slice(1)) || 0; if(current < 0) current = 0; }
+  else current = value === "" ? 0 : (Number(value) || 0);
+  person.funds[fundId] = current;
   persist();
-  updateTotalsRowOnly();
+  renderTable();
 }
 function updateTotalsRowOnly(){
   const totalRow = document.querySelector('.total-row');
@@ -1331,13 +1346,42 @@ function showToast(msg, type=''){
 }
 
 /* ================= INIT ================= */
+let startupTimedOut = false;
+const startupSafetyTimer = setTimeout(()=>{
+  const loadingEl = document.getElementById('loadingScreen');
+  if(loadingEl && loadingEl.style.display !== 'none'){
+    startupTimedOut = true;
+    showConfigError('Timed out after 8 seconds — the page may have no internet, or the database is unreachable');
+  }
+}, 8000);
+
 async function init(){
-  const ok = await loadState();
-  if(!ok) return; // config error already shown
-  document.getElementById('loadingScreen').style.display = 'none';
-  setAdminUI(false); // land directly on the viewer register
-  startPolling();
+  try{
+    const ok = await loadState();
+    clearTimeout(startupSafetyTimer);
+    if(startupTimedOut) return;
+    if(!ok) return; // config error already shown
+    document.getElementById('loadingScreen').style.display = 'none';
+    setAdminUI(false); // land directly on the viewer register
+    startPolling();
+  }catch(e){
+    clearTimeout(startupSafetyTimer);
+    console.error('Startup failed:', e);
+    showConfigError((e && (e.message || e.toString())) || 'Unknown startup error');
+  }
 }
+window.addEventListener('error', function(e){
+  console.error('Uncaught error:', e.error || e.message);
+  const loadingEl = document.getElementById('loadingScreen');
+  const appEl = document.getElementById('app');
+  const detail = (e.error && (e.error.message || e.error.toString())) || e.message || 'Unknown script error';
+  const location = (e.filename ? (e.filename.split('/').pop() + ':' + e.lineno) : '');
+  if(loadingEl && loadingEl.style.display !== 'none'){
+    showConfigError(detail + (location ? ' (' + location + ')' : ''));
+  } else if(appEl && appEl.style.display === 'none' && document.getElementById('loginScreen').style.display !== 'flex'){
+    showConfigError(detail + (location ? ' (' + location + ')' : ''));
+  }
+});
 init();
 </script>
 </body>
