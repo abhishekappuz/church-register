@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSI Marayamuttom — Contribution Register</title>
+<style>
+
+  :root{
+    --paper:#FBF8F2;
+    --paper-dim:#F2EDE2;
+    --ink:#2B2420;
+    --ink-soft:#6B6055;
+    --gold:#A8762E;
+    --gold-soft:#D9B984;
+    --sage:#6B8068;
+    --sage-bg:#E9EFE6;
+    --red:#A8453F;
+    --red-bg:#F6E8E6;
+    --line:#DDD3BF;
+    --line-strong:#C7B896;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper-dim);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  h1,h2,h3,.serif{font-family:'Source Serif 4',serif;}
+
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+  input{font-family:inherit;}
+
+  button:focus-visible, input:focus-visible, select:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+  }
+
+  /* ================= SHARED MASTHEAD ================= */
+  .masthead{text-align:center;}
+  .masthead .church-name{
+    font-size:26px;
+    font-weight:800;
+    margin:0;
+    line-height:1.2;
+    letter-spacing:0.01em;
+  }
+  .masthead .reg-sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    margin:6px 0 0;
+    font-weight:600;
+  }
+  .masthead-rule{
+    width:48px;
+    height:2px;
+    background:var(--gold);
+    margin:18px auto 0;
+  }
+
+  /* ================= LOGIN PAGE ================= */
+  #loginScreen{
+    display:none;
+    min-height:100vh;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(168,118,46,0.06), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(168,118,46,0.05), transparent 40%),
+      var(--paper-dim);
+  }
+  .cover{
+    width:100%;
+    max-width:420px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 1px 2px rgba(43,36,32,0.04), 0 16px 40px rgba(43,36,32,0.1);
+    position:relative;
+    padding:44px 40px 40px;
+  }
+  .cover::before{
+    content:"";
+    position:absolute;
+    left:14px; top:14px; right:14px; bottom:14px;
+    border:1px solid var(--gold-soft);
+    pointer-events:none;
+  }
+  .cover .masthead{margin-bottom:30px;}
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin-bottom:20px;
+  }
+  .back-link:hover{color:var(--ink);}
+
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  .field input{
+    width:100%;
+    padding:12px 13px;
+    border:1px solid var(--line-strong);
+    background:var(--paper);
+    color:var(--ink);
+    font-size:15px;
+    border-radius:5px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .field input:focus{border-color:var(--gold); box-shadow:0 0 0 3px rgba(168,118,46,0.1);}
+
+  .btn-primary{
+    width:100%;
+    padding:14px;
+    background:var(--ink);
+    color:var(--paper);
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    border-radius:5px;
+    margin-top:6px;
+    transition:background .15s, transform .1s;
+  }
+  .btn-primary:hover{background:#3d342c;}
+  .btn-primary:active{transform:scale(0.98);}
+
+  .btn-ghost{
+    width:100%;
+    padding:14px;
+    background:transparent;
+    color:var(--ink);
+    border:1px solid var(--line-strong);
+    font-size:14px;
+    font-weight:600;
+    border-radius:5px;
+    margin-top:6px;
+    transition:background .15s;
+  }
+  .btn-ghost:hover{background:var(--paper-dim);}
+
+  .login-error{
+    background:var(--red-bg);
+    color:var(--red);
+    font-size:13px;
+    padding:11px 14px;
+    border-radius:5px;
+    margin-bottom:16px;
+    display:none;
+  }
+
+  /* ================= APP SHELL ================= */
+  #app{display:none; min-height:100vh; flex-direction:column;}
+  .topbar{
+    background:var(--ink);
+    color:var(--paper);
+    padding:16px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  }
+  .topbar-left{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .topbar-titles{line-height:1.3;}
+  .topbar-titles .tb-church{font-size:19px; font-weight:800; margin:0; letter-spacing:0.01em;}
+  .topbar-titles .tb-sub{font-size:10.5px; color:var(--gold-soft); text-transform:uppercase; letter-spacing:0.12em; margin:2px 0 0; font-weight:600;}
+  .role-pill{
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:4px 11px;
+    border-radius:20px;
+    font-weight:700;
+    font-family:'Inter',sans-serif;
+  }
+  .role-pill.admin{background:var(--gold-soft); color:#4a3415;}
+  .role-pill.viewer{background:#3d4a3a; color:#cfe0c9;}
+
+  .topbar-right{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .btn-small{
+    padding:9px 16px;
+    font-size:12.5px;
+    font-weight:600;
+    border-radius:5px;
+    background:rgba(251,248,242,0.08);
+    color:var(--paper);
+    border:1px solid rgba(251,248,242,0.2);
+    white-space:nowrap;
+    transition:background .15s, border-color .15s, transform .1s;
+  }
+  .btn-small:hover{background:rgba(251,248,242,0.16); border-color:rgba(251,248,242,0.32);}
+  .btn-small:active{transform:scale(0.97);}
+  .btn-small.danger{background:rgba(168,69,63,0.85); border-color:var(--red);}
+  .btn-small.danger:hover{background:var(--red);}
+  .btn-small.gold{background:var(--gold); border-color:var(--gold); color:#fff;}
+  .btn-small.gold:hover{background:#946326;}
+
+  .toolbar{
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+    padding:16px 28px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .search-box{
+    flex:1;
+    min-width:220px;
+    max-width:380px;
+    position:relative;
+  }
+  .search-box input{
+    width:100%;
+    padding:10px 14px 10px 36px;
+    border:1px solid var(--line-strong);
+    border-radius:22px;
+    font-size:13.5px;
+    background:var(--paper-dim);
+    transition:background .15s, box-shadow .15s;
+  }
+  .search-box input:focus{background:var(--paper); box-shadow:0 0 0 3px rgba(168,118,46,0.1);}
+  .search-icon{
+    position:absolute; left:13px; top:50%; transform:translateY(-50%);
+    width:14px; height:14px; color:var(--ink-soft);
+  }
+  .record-count{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    font-weight:500;
+  }
+  .toolbar-spacer{flex:1;}
+
+  /* ================= TABLE ================= */
+  .table-wrap{
+    flex:1;
+    overflow:auto;
+    background:var(--paper);
+    margin:0 28px 28px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    box-shadow:0 1px 3px rgba(43,36,32,0.06), 0 8px 24px rgba(43,36,32,0.04);
+  }
+  table{
+    border-collapse:collapse;
+    width:100%;
+    min-width:1400px;
+    font-size:14px;
+  }
+  thead th{
+    position:sticky;
+    top:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-weight:600;
+    text-align:left;
+    padding:13px 14px;
+    font-size:12px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    z-index:2;
+    border-right:1px solid rgba(251,248,242,0.1);
+    white-space:nowrap;
+  }
+  thead th.fund-col{text-align:right; color:var(--gold-soft);}
+  thead th.sl-col{
+    left:0; z-index:3;
+    text-align:center;
+    width:54px;
+    color:var(--paper);
+  }
+  thead th.name-col{left:54px; z-index:3; min-width:120px; color:var(--paper);}
+  thead th.addr-col{min-width:210px; color:var(--paper);}
+
+  .manage-cols-th{
+    text-align:center !important;
+    width:64px;
+    color:var(--paper) !important;
+  }
+  .manage-cols-btn{
+    width:30px; height:30px;
+    border-radius:6px;
+    color:var(--paper);
+    background:rgba(251,248,242,0.12);
+    display:inline-flex; align-items:center; justify-content:center;
+    transition:background .15s;
+  }
+  .manage-cols-btn:hover{background:var(--gold);}
+
+  tbody td{
+    padding:11px 14px;
+    border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line);
+    white-space:nowrap;
+  }
+  tbody tr:nth-child(even){background:#FAF6ED;}
+  tbody tr:hover{background:var(--sage-bg);}
+
+  td.sl-col, td.name-col{
+    position:sticky;
+    background:inherit;
+    z-index:1;
+  }
+  td.sl-col{left:0; text-align:center; color:var(--ink-soft); font-weight:600;}
+  td.name-col{left:54px; font-weight:600;}
+  tbody tr:hover td.sl-col, tbody tr:hover td.name-col{background:var(--sage-bg);}
+
+  td.fund-col{text-align:right; font-variant-numeric:tabular-nums; color:var(--ink);}
+  td.addr-col{white-space:normal; max-width:220px; color:var(--ink-soft);}
+
+  .total-row td{
+    background:#EFE6D2 !important;
+    font-weight:700;
+    border-top:2px solid var(--gold);
+    position:sticky;
+    bottom:0;
+  }
+  .total-row td.fund-col{color:#8a5d23;}
+
+  td input{
+    width:84px;
+    padding:7px 8px;
+    border:1px solid transparent;
+    background:transparent;
+    text-align:right;
+    font-size:14px;
+    border-radius:3px;
+    font-variant-numeric:tabular-nums;
+  }
+  td input:hover{border-color:var(--line-strong);}
+  td input:focus{
+    border-color:var(--gold);
+    background:var(--paper);
+    box-shadow:0 0 0 3px rgba(168,118,46,0.12);
+  }
+  td.name-col input, td.addr-col input{
+    width:100%;
+    text-align:left;
+    min-width:100px;
+  }
+
+  .row-actions{display:flex; gap:6px; justify-content:center;}
+  .icon-btn{
+    width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:5px;
+    color:var(--ink-soft);
+    transition:background .15s, color .15s;
+  }
+  .icon-btn:hover{background:var(--paper-dim); color:var(--ink);}
+  .icon-btn.delete:hover{color:var(--red); background:var(--red-bg);}
+
+  .empty-state{text-align:center; padding:72px 24px; color:var(--ink-soft);}
+  .empty-state h3{margin:0 0 8px; color:var(--ink); font-size:19px;}
+  .empty-state svg{color:var(--gold-soft); margin-bottom:12px;}
+
+  /* ================= MODAL ================= */
+  .modal-backdrop{
+    position:fixed; inset:0;
+    background:rgba(43,36,32,0.5);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:20px;
+  }
+  .modal{
+    background:var(--paper);
+    width:100%;
+    max-width:380px;
+    border-radius:8px;
+    padding:30px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.28);
+    border:1px solid var(--line);
+  }
+  .modal h3{margin:0 0 8px; font-size:19px; font-family:'Source Serif 4',serif;}
+  .modal p{font-size:13.5px; color:var(--ink-soft); margin:0 0 20px; line-height:1.55;}
+  .modal-actions{display:flex; gap:10px;}
+  .modal-actions button{flex:1; padding:12px; border-radius:5px; font-size:13.5px; font-weight:600;}
+
+  .modal-add{max-width:480px;}
+  .modal-add .field input{padding:10px 11px;}
+  .add-grid{display:grid; grid-template-columns:1fr 1fr; gap:0 14px;}
+
+  /* ================= MANAGE COLUMNS MODAL ================= */
+  .modal-cols{max-width:520px;}
+  .col-list{
+    max-height:360px;
+    overflow-y:auto;
+    margin:0 -4px 18px;
+    padding:0 4px;
+  }
+  .col-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .col-row:last-child{border-bottom:none;}
+  .col-row-num{
+    width:22px;
+    flex-shrink:0;
+    font-size:12px;
+    color:var(--ink-soft);
+    text-align:center;
+    font-weight:600;
+  }
+  .col-row input{
+    flex:1;
+    padding:9px 11px;
+    border:1px solid var(--line-strong);
+    border-radius:3px;
+    font-size:14px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .col-row input:focus{border-color:var(--gold);}
+  .col-row-delete{
+    flex-shrink:0;
+    width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:4px;
+    color:var(--ink-soft);
+    border:1px solid var(--line-strong);
+  }
+  .col-row-delete:hover{color:var(--red); background:var(--red-bg); border-color:var(--red);}
+  .add-col-row-btn{
+    width:100%;
+    padding:11px;
+    margin-top:6px;
+    border:1.5px dashed var(--line-strong);
+    border-radius:4px;
+    color:var(--gold);
+    font-size:13.5px;
+    font-weight:600;
+    background:transparent;
+  }
+  .add-col-row-btn:hover{background:var(--paper-dim); border-color:var(--gold);}
+
+  /* Toast */
+  #toast{
+    position:fixed;
+    bottom:24px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:var(--paper);
+    padding:12px 20px;
+    border-radius:4px;
+    font-size:13.5px;
+    font-weight:500;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s, transform .2s;
+    z-index:100;
+    box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  #toast.success{background:var(--sage);}
+  #toast.error{background:var(--red);}
+
+  /* ================= SYNC STATUS / LOADING ================= */
+  .sync-pill{
+    font-size:10.5px;
+    color:var(--ink-soft);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .sync-dot{
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--sage);
+    flex-shrink:0;
+  }
+  .sync-dot.saving{background:var(--gold); animation:pulse 1s infinite;}
+  .sync-dot.error{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.4;}}
+
+  .loading-screen{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    color:var(--ink-soft);
+    font-size:13.5px;
+  }
+  .loading-spinner{
+    width:28px; height:28px;
+    border:3px solid var(--line);
+    border-top-color:var(--gold);
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .config-error{
+    max-width:480px;
+    margin:60px auto;
+    background:var(--red-bg);
+    border:1px solid var(--red);
+    border-radius:4px;
+    padding:24px 28px;
+    color:var(--ink);
+  }
+  .config-error h3{margin:0 0 10px; color:var(--red);}
+  .config-error code{background:rgba(0,0,0,0.06); padding:2px 6px; border-radius:3px; font-size:12.5px;}
+
+  /* ================= PRINT VIEW ================= */
+  #printArea{display:none;}
+  @media print{
+    #loginScreen, #app, #toast, .modal-backdrop{display:none !important;}
+    #printArea{display:block !important;}
+    body{background:#fff;}
+    .print-masthead{text-align:center; margin-bottom:18px;}
+    .print-masthead h1{font-size:22px; margin:0; font-family:'Source Serif 4',serif;}
+    .print-masthead .p-sub{font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#444; margin:4px 0 0;}
+    .print-masthead .p-date{font-size:10.5px; color:#666; margin-top:8px;}
+    table.print-table{width:100%; border-collapse:collapse; font-size:10.5px;}
+    table.print-table th, table.print-table td{border:1px solid #999; padding:4px 6px;}
+    table.print-table th{background:#eee; text-align:left;}
+    table.print-table td.p-fund, table.print-table th.p-fund{text-align:right;}
+    table.print-table tr.p-total td{font-weight:700; border-top:2px solid #000;}
+  }
+
+  @media (max-width:640px){
+    .cover{padding:36px 24px 28px;}
+    .topbar{padding:14px 16px;}
+    .toolbar{padding:12px 16px;}
+    .table-wrap{margin:0 0 16px;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+  }
+</style>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js" defer onerror="window.__supabaseLoadFailed=true; console.warn('unpkg failed, trying jsdelivr fallback'); var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'; s.onerror=function(){console.warn('jsdelivr fallback also failed, trying cdnjs');var s2=document.createElement('script');s2.src='https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.7/supabase.min.js';document.head.appendChild(s2);}; document.head.appendChild(s);"></script>
+</head>
+<body>
+
+<!-- ================= LOADING SCREEN ================= -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-spinner"></div>
+  <p>Loading the register…</p>
+  <p id="debugStep" style="font-family:monospace; font-size:11px; color:#999; margin-top:18px;">Step: starting…</p>
+</div>
+
+<!-- ================= CONFIG ERROR (shown if Supabase keys are missing/wrong) ================= -->
+<div id="configErrorScreen" style="display:none;">
+  <div class="config-error">
+    <h3>Connection not set up</h3>
+    <p>This page couldn't connect to the shared database. Check that <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> near the bottom of this file's script are filled in correctly, and that the <code>register</code> table exists in your Supabase project.</p>
+    <p id="configErrorDetail" style="display:none; font-family:monospace; font-size:11.5px; background:rgba(0,0,0,0.06); padding:8px 10px; border-radius:4px; word-break:break-word;"></p>
+  </div>
+</div>
+
+<!-- ================= LOGIN PAGE (Admin) ================= -->
+<div id="loginScreen">
+  <div class="cover">
+    <button class="back-link" onclick="goToApp()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to register
+    </button>
+
+    <div class="masthead">
+      <h1 class="church-name">CSI MARAYAMUTTOM</h1>
+      <p class="reg-sub">Contribution Register</p>
+      <div class="masthead-rule"></div>
+    </div>
+
+    <div class="login-error" id="loginError"></div>
+
+    <div id="adminForm" style="margin-top:28px;">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" autocomplete="username" placeholder="Enter username">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" autocomplete="current-password" placeholder="Enter password">
+      </div>
+      <button class="btn-primary" onclick="attemptLogin()">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MAIN APP (Register / Viewer + Admin) ================= -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-titles">
+        <p class="tb-church">CSI MARAYAMUTTOM</p>
+        <p class="tb-sub">Contribution Register</p>
+      </div>
+      <span class="role-pill viewer" id="rolePill">Viewer</span>
+      <span class="sync-pill" id="syncPill"><span class="sync-dot" id="syncDot"></span><span id="syncText">Synced</span></span>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-small" onclick="printRegister()">🖶 Print</button>
+      <button class="btn-small gold" id="addPersonBtn" onclick="openAddModal()" style="display:none;">+ Add Person</button>
+      <button class="btn-small" id="manageColsBtn" onclick="openManageColumns()" style="display:none;">⚙ Manage Columns</button>
+      <button class="btn-small" id="saveBtn" onclick="manualSave()" style="display:none; background:var(--sage); border-color:var(--sage);">💾 Save Changes</button>
+      <button class="btn-small" id="changeCredBtn" onclick="openChangeCred()" style="display:none;">Change Login</button>
+      <button class="btn-small" id="adminLoginBtn" onclick="goToLogin()">Admin Login</button>
+      <button class="btn-small danger" id="signOutBtn" onclick="confirmLogout()" style="display:none;">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Search by name, address, or serial no." oninput="renderTable()">
+    </div>
+    <div class="toolbar-spacer"></div>
+    <div class="record-count" id="recordCount">0 records</div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="dataTable">
+      <thead><tr id="headRow"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ================= PRINT AREA ================= -->
+<div id="printArea">
+  <div class="print-masthead">
+    <h1>CSI MARAYAMUTTOM</h1>
+    <p class="p-sub">Contribution Register</p>
+    <p class="p-date" id="printDate"></p>
+  </div>
+  <table class="print-table" id="printTable"></table>
+</div>
+
+<!-- ================= ADD PERSON MODAL ================= -->
+<div class="modal-backdrop" id="addModalBackdrop">
+  <div class="modal modal-add">
+    <h3>Add a person</h3>
+    <p>They'll be added with the next serial number. You can fill in fund amounts afterward in the table.</p>
+    <div class="add-grid">
+      <div class="field">
+        <label for="newName">Name</label>
+        <input type="text" id="newName" placeholder="Full name">
+      </div>
+      <div class="field">
+        <label for="newAddress">Address</label>
+        <input type="text" id="newAddress" placeholder="Address">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-primary" onclick="addPerson()" style="background:var(--gold);">Add Person</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MANAGE COLUMNS MODAL ================= -->
+<div class="modal-backdrop" id="manageColsModalBackdrop">
+  <div class="modal modal-cols">
+    <h3>Manage fund columns</h3>
+    <p>Rename a column by editing its text below, or remove one with the ✕ button. Changes apply once you click Done — then press Save Changes to make them live.</p>
+    <div class="col-list" id="colList"></div>
+    <button class="add-col-row-btn" onclick="addColumn()">+ Add a new fund column</button>
+    <div class="modal-actions" style="margin-top:18px;">
+      <button class="btn-primary" onclick="closeManageColumns()" style="background:var(--gold);">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DELETE PERSON CONFIRM ================= -->
+<div class="modal-backdrop" id="deleteModalBackdrop">
+  <div class="modal">
+    <h3>Remove this record?</h3>
+    <p id="deleteModalText">This will permanently remove the person and all their fund entries. This can't be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-primary" style="background:var(--red);" onclick="performDelete()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DELETE COLUMN CONFIRM ================= -->
+<div class="modal-backdrop" id="deleteColModalBackdrop">
+  <div class="modal">
+    <h3>Remove this column?</h3>
+    <p id="deleteColModalText">This will permanently remove this fund column and every amount recorded under it for all 500 people. This can't be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeDeleteColModal()">Cancel</button>
+      <button class="btn-primary" style="background:var(--red);" onclick="performDeleteColumn()">Remove Column</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CHANGE CREDENTIALS MODAL ================= -->
+<div class="modal-backdrop" id="credModalBackdrop">
+  <div class="modal">
+    <h3>Change admin login</h3>
+    <p>Update the username and password used to sign in as admin.</p>
+    <div class="field">
+      <label for="newUsername">New username</label>
+      <input type="text" id="newUsername" placeholder="Leave blank to keep current">
+    </div>
+    <div class="field">
+      <label for="newPassword">New password</label>
+      <input type="password" id="newPassword" placeholder="Leave blank to keep current">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeChangeCred()">Cancel</button>
+      <button class="btn-primary" onclick="saveCredentials()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LOGOUT CONFIRM ================= -->
+<div class="modal-backdrop" id="logoutModalBackdrop">
+  <div class="modal">
+    <h3>Sign out?</h3>
+    <p>You'll need to sign in again to make changes.</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeLogoutModal()">Cancel</button>
+      <button class="btn-primary" onclick="performLogout()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================= CONFIG ================= */
+const DEFAULT_FUND_LABELS = [
+  "Building Fund", "Box Collection", "Nercha", "Maasavari", "Sambhavana",
+  "Poor Fund", "Kaanikka", "Mission Fund", "Lelam", "KSFE"
+];
+const CRED_KEY = "csiMarayamuttomCreds_v2"; // admin login still checked locally per device
+const DEFAULT_CREDS = { username: "admin", password: "church2026" };
+
+// ===== FILL THESE IN WITH YOUR SUPABASE PROJECT DETAILS =====
+const SUPABASE_URL = "https://esepljirgmqtswywujwa.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZXBsamlyZ21xdHN3eXd1andhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMzQ3NzQsImV4cCI6MjA5NzcxMDc3NH0.xMgAOufvOlevwTBJ5ES686bp93W60MtrcMeY5NXRaeQ";
+// ==============================================================
+
+const ROW_ID = "main";
+const POLL_INTERVAL_MS = 8000; // how often viewers/admins refresh from the shared database
+
+let supabaseClient = null;
+function debugStep(msg){
+  const el = document.getElementById('debugStep');
+  if(el) el.textContent = 'Step: ' + msg;
+  console.log('DEBUG STEP:', msg);
+}
+
+function getClient(){
+  try{
+    debugStep('checking Supabase library...');
+    if(!supabaseClient){
+      if(!window.supabase){
+        debugStep('FAILED — window.supabase is undefined (CDN script did not load)');
+        return null;
+      }
+      if(!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('YOUR_')){
+        debugStep('FAILED — URL/key missing or placeholder');
+        return null;
+      }
+      debugStep('creating Supabase client...');
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    debugStep('Supabase client ready');
+    return supabaseClient;
+  }catch(e){
+    debugStep('FAILED creating client: ' + (e.message || e));
+    console.error('Failed to create Supabase client:', e);
+    return null;
+  }
+}
+
+/* ================= STATE ================= */
+// state.funds: array of {id, label}
+// state.people: [{sl, name, address, funds:{ [fundId]: number }}]
+let state = { people: [], funds: [], nextSl: 1, nextFundId: 1 };
+let isAdmin = false;
+let deleteTargetSl = null;
+let deleteTargetFundId = null;
+let saveTimer = null;
+let pollTimer = null;
+let isSaving = false;
+let lastKnownUpdatedAt = null;
+let localEditInProgress = false;
+let localEditClearTimer = null;
+
+/* ================= PERSISTENCE (Supabase) ================= */
+async function loadState(){
+  debugStep('loadState started');
+  const client = getClient();
+  if(!client){
+    showConfigError(!window.supabase ? 'Supabase library did not load (network/CDN blocked?)' : 'Missing or placeholder URL/key');
+    return false;
+  }
+  try{
+    debugStep('fetching data from database...');
+    const { data, error } = await client
+      .from('register')
+      .select('data, updated_at')
+      .eq('id', ROW_ID)
+      .single();
+
+    debugStep('database responded');
+    if(error) throw error;
+
+    if(data && data.data){
+      state = data.data;
+      lastKnownUpdatedAt = data.updated_at;
+      if(!state.funds || state.funds.length === 0){
+        state.funds = DEFAULT_FUND_LABELS.map((label,i)=>({ id:i+1, label }));
+        state.nextFundId = DEFAULT_FUND_LABELS.length + 1;
+      }
+      if(!Array.isArray(state.people)) state.people = [];
+      if(!state.nextSl) state.nextSl = (state.people.reduce((m,p)=>Math.max(m,p.sl||0),0) + 1);
+    } else {
+      initFreshState();
+      await persistNow();
+    }
+    return true;
+  }catch(e){
+    console.error(e);
+    showConfigError((e && (e.message || e.toString())) || JSON.stringify(e));
+    return false;
+  }
+}
+function initFreshState(){
+  state = {
+    people: [],
+    funds: DEFAULT_FUND_LABELS.map((label,i)=>({ id:i+1, label })),
+    nextSl: 1,
+    nextFundId: DEFAULT_FUND_LABELS.length + 1
+  };
+}
+function showConfigError(detail){
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('configErrorScreen').style.display = 'block';
+  const detailEl = document.getElementById('configErrorDetail');
+  if(detailEl){
+    detailEl.textContent = detail ? ('Technical detail: ' + detail) : '';
+    detailEl.style.display = detail ? 'block' : 'none';
+  }
+}
+
+let hasUnsavedChanges = false;
+
+function setSyncStatus(status){
+  // status: 'synced' | 'saving' | 'error' | 'unsaved'
+  const dot = document.getElementById('syncDot');
+  const text = document.getElementById('syncText');
+  if(!dot || !text) return;
+  dot.className = 'sync-dot' + (status === 'saving' ? ' saving' : status === 'error' ? ' error' : status === 'unsaved' ? ' saving' : '');
+  text.textContent = status === 'saving' ? 'Saving…'
+    : status === 'error' ? 'Save failed — try again'
+    : status === 'unsaved' ? 'Unsaved changes'
+    : 'Synced';
+}
+
+function persist(){
+  // Local-only: mark that there are unsaved changes. Nothing is sent to
+  // Supabase until the admin clicks "Save Changes". This avoids a network
+  // call on every keystroke and lets admin fix typos before anything goes live.
+  hasUnsavedChanges = true;
+  markLocalEditInProgress();
+  setSyncStatus('unsaved');
+  updateSaveButtonState();
+}
+function updateSaveButtonState(){
+  const btn = document.getElementById('saveBtn');
+  if(!btn) return;
+  if(hasUnsavedChanges){
+    btn.textContent = '💾 Save Changes •';
+    btn.style.background = 'var(--gold)';
+    btn.style.borderColor = 'var(--gold)';
+  } else {
+    btn.textContent = '💾 Save Changes';
+    btn.style.background = 'var(--sage)';
+    btn.style.borderColor = 'var(--sage)';
+  }
+}
+function markLocalEditInProgress(){
+  // pause incoming polling overwrites while the admin has unsaved local edits
+  localEditInProgress = true;
+  clearTimeout(localEditClearTimer);
+  // no auto-clear timer needed now — cleared explicitly after a successful save
+}
+async function manualSave(){
+  const client = getClient();
+  if(!client){
+    showToast("Not connected to the database", "error");
+    return;
+  }
+  setSyncStatus('saving');
+  isSaving = true;
+  try{
+    const { data, error } = await client
+      .from('register')
+      .update({ data: state, updated_at: new Date().toISOString() })
+      .eq('id', ROW_ID)
+      .select('updated_at')
+      .single();
+    if(error) throw error;
+    if(data) lastKnownUpdatedAt = data.updated_at;
+    hasUnsavedChanges = false;
+    localEditInProgress = false;
+    setSyncStatus('synced');
+    updateSaveButtonState();
+    showToast("Saved — changes are now live for everyone", "success");
+  }catch(e){
+    console.error(e);
+    setSyncStatus('error');
+    showToast("Could not save changes — check your connection", "error");
+  }finally{
+    isSaving = false;
+  }
+}
+
+async function pollForUpdates(){
+  if(localEditInProgress || isSaving) return; // don't clobber an in-progress edit
+  const client = getClient();
+  if(!client) return;
+  try{
+    const { data, error } = await client
+      .from('register')
+      .select('data, updated_at')
+      .eq('id', ROW_ID)
+      .single();
+    if(error) throw error;
+    if(data && data.updated_at && data.updated_at !== lastKnownUpdatedAt){
+      state = data.data;
+      lastKnownUpdatedAt = data.updated_at;
+      buildHeader();
+      renderTable();
+    }
+  }catch(e){
+    // silent — polling failures shouldn't interrupt the UI
+    console.warn('Poll failed', e);
+  }
+}
+function startPolling(){
+  clearInterval(pollTimer);
+  pollTimer = setInterval(pollForUpdates, POLL_INTERVAL_MS);
+}
+
+function loadCreds(){
+  try{
+    const raw = localStorage.getItem(CRED_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return { ...DEFAULT_CREDS };
+}
+function saveCreds(c){ localStorage.setItem(CRED_KEY, JSON.stringify(c)); }
+
+/* ================= NAVIGATION ================= */
+function goToLogin(){
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  hideLoginError();
+}
+function goToApp(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+  hideLoginError();
+}
+
+/* ================= LOGIN ================= */
+function showLoginError(msg){
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideLoginError(){ document.getElementById('loginError').style.display = 'none'; }
+
+function attemptLogin(){
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  const creds = loadCreds();
+  if(u === creds.username && p === creds.password){
+    isAdmin = true;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    setAdminUI(true);
+  } else {
+    showLoginError("That username or password doesn't match our records.");
+  }
+}
+
+function setAdminUI(admin){
+  isAdmin = admin;
+  document.getElementById('rolePill').textContent = admin ? 'Admin' : 'Viewer';
+  document.getElementById('rolePill').className = 'role-pill ' + (admin ? 'admin' : 'viewer');
+  document.getElementById('addPersonBtn').style.display = admin ? 'inline-block' : 'none';
+  document.getElementById('manageColsBtn').style.display = admin ? 'inline-block' : 'none';
+  document.getElementById('saveBtn').style.display = admin ? 'inline-block' : 'none';
+  document.getElementById('changeCredBtn').style.display = admin ? 'inline-block' : 'none';
+  document.getElementById('signOutBtn').style.display = admin ? 'inline-block' : 'none';
+  document.getElementById('adminLoginBtn').style.display = admin ? 'none' : 'inline-block';
+  if(admin) updateSaveButtonState();
+  buildHeader();
+  renderTable();
+}
+
+function confirmLogout(){
+  if(hasUnsavedChanges){
+    showToast("You have unsaved changes — save first, or they'll be lost", "error");
+  }
+  document.getElementById('logoutModalBackdrop').style.display = 'flex';
+}
+function closeLogoutModal(){ document.getElementById('logoutModalBackdrop').style.display = 'none'; }
+function performLogout(){
+  closeLogoutModal();
+  hasUnsavedChanges = false;
+  setAdminUI(false);
+  showToast("Signed out", "success");
+}
+window.addEventListener('beforeunload', function(e){
+  if(hasUnsavedChanges){
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+/* ================= TABLE BUILD ================= */
+function buildHeader(){
+  const headRow = document.getElementById('headRow');
+  let html = `
+    <th class="sl-col">Sl. No</th>
+    <th class="name-col">Name</th>
+    <th class="addr-col">Address</th>
+  `;
+  state.funds.forEach(fund=>{
+    html += `<th class="fund-col">${escapeHtml(fund.label)}</th>`;
+  });
+  if(isAdmin){
+    html += `<th class="manage-cols-th"><button class="manage-cols-btn" title="Manage columns" onclick="openManageColumns()">⚙</button></th>`;
+    html += `<th style="width:64px; text-align:center;">Remove</th>`;
+  }
+  headRow.innerHTML = html;
+}
+
+function renderTable(){
+  const tbody = document.getElementById('tableBody');
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+  const extraCols = isAdmin ? 2 : 0;
+  const totalCols = 3 + state.funds.length + extraCols;
+
+  let rows = state.people;
+  if(query){
+    rows = rows.filter(p =>
+      String(p.sl).includes(query) ||
+      p.name.toLowerCase().includes(query) ||
+      p.address.toLowerCase().includes(query)
+    );
+  }
+
+  document.getElementById('recordCount').textContent =
+    `${rows.length} of ${state.people.length} record${state.people.length===1?'':'s'}`;
+
+  if(state.people.length === 0){
+    tbody.innerHTML = `<tr><td colspan="${totalCols}">
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12h6m-6 4h6M9 8h6M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/></svg>
+        <h3>No records yet</h3>
+        <p>${isAdmin ? 'Add the first person to begin the register.' : 'The admin has not added any records yet.'}</p>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  if(rows.length === 0){
+    tbody.innerHTML = `<tr><td colspan="${totalCols}">
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <h3>No matches</h3>
+        <p>Try a different name, address, or serial number.</p>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  let html = '';
+  rows.forEach(person=>{
+    html += `<tr data-sl="${person.sl}">`;
+    html += `<td class="sl-col">${person.sl}</td>`;
+
+    if(isAdmin){
+      html += `<td class="name-col"><input type="text" value="${escapeAttr(person.name)}" oninput="updateField(${person.sl}, 'name', this.value)"></td>`;
+      html += `<td class="addr-col"><input type="text" value="${escapeAttr(person.address)}" oninput="updateField(${person.sl}, 'address', this.value)"></td>`;
+    } else {
+      html += `<td class="name-col">${escapeHtml(person.name)}</td>`;
+      html += `<td class="addr-col">${escapeHtml(person.address)}</td>`;
+    }
+
+    state.funds.forEach(fund=>{
+      const val = (person.funds && person.funds[fund.id]) || 0;
+      if(isAdmin){
+        html += `<td class="fund-col"><input type="text" inputmode="text" value="${val === 0 ? '' : val}" placeholder="0" title="Type a number to set the amount, or +25 / -25 to add or subtract from the current value" onchange="updateFund(${person.sl}, ${fund.id}, this.value)"></td>`;
+      } else {
+        html += `<td class="fund-col">${val ? formatNumber(val) : '—'}</td>`;
+      }
+    });
+
+    if(isAdmin){
+      html += `<td></td>`; // spacer under add-column button
+      html += `<td><div class="row-actions">
+        <button class="icon-btn delete" title="Remove person" onclick="confirmDelete(${person.sl})">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+        </button>
+      </div></td>`;
+    }
+    html += `</tr>`;
+  });
+
+  // Totals row
+  const totals = {};
+  state.funds.forEach(f => totals[f.id] = 0);
+  rows.forEach(p => state.funds.forEach(f => totals[f.id] += Number((p.funds && p.funds[f.id]) || 0)));
+  html += `<tr class="total-row"><td colspan="3" style="text-align:right; padding-right:16px;">TOTAL${query ? ' (filtered)' : ''}</td>`;
+  state.funds.forEach(f => html += `<td class="fund-col">${formatNumber(totals[f.id])}</td>`);
+  if(isAdmin) html += `<td></td><td></td>`;
+  html += `</tr>`;
+
+  tbody.innerHTML = html;
+}
+
+/* ================= DATA EDITS: PEOPLE ================= */
+function updateField(sl, field, value){
+  const person = state.people.find(p=>p.sl===sl);
+  if(!person) return;
+  person[field] = value;
+  persist();
+}
+function updateFund(sl, fundId, value){
+  const person = state.people.find(p=>p.sl===sl);
+  if(!person) return;
+  if(!person.funds) person.funds = {};
+  let current = Number(person.funds[fundId] || 0);
+  value = String(value).trim();
+  if(value === ""){
+    current = 0;
+  } else if(value.startsWith("+")){
+    const delta = parseFloat(value.slice(1));
+    current += isNaN(delta) ? 0 : delta;
+  } else if(value.startsWith("-")){
+    const delta = parseFloat(value.slice(1));
+    current -= isNaN(delta) ? 0 : delta;
+    if(current < 0) current = 0;
+  } else {
+    const parsed = parseFloat(value);
+    current = isNaN(parsed) ? 0 : parsed;
+  }
+  // round to 2 decimals to avoid floating point artifacts (e.g. 0.1 + 0.2)
+  current = Math.round(current * 100) / 100;
+  person.funds[fundId] = current;
+  persist();
+  renderTable();
+}
+function updateTotalsRowOnly(){
+  const totalRow = document.querySelector('.total-row');
+  if(!totalRow) return;
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+  let rows = state.people;
+  if(query){
+    rows = rows.filter(p =>
+      String(p.sl).includes(query) ||
+      p.name.toLowerCase().includes(query) ||
+      p.address.toLowerCase().includes(query)
+    );
+  }
+  const totals = {};
+  state.funds.forEach(f => totals[f.id] = 0);
+  rows.forEach(p => state.funds.forEach(f => totals[f.id] += Number((p.funds && p.funds[f.id]) || 0)));
+  const cells = totalRow.querySelectorAll('td.fund-col');
+  state.funds.forEach((f,i)=>{ if(cells[i]) cells[i].textContent = formatNumber(totals[f.id]); });
+}
+
+/* ================= ADD / REMOVE PEOPLE ================= */
+function openAddModal(){
+  document.getElementById('newName').value = '';
+  document.getElementById('newAddress').value = '';
+  document.getElementById('addModalBackdrop').style.display = 'flex';
+  setTimeout(()=>document.getElementById('newName').focus(), 50);
+}
+function closeAddModal(){ document.getElementById('addModalBackdrop').style.display = 'none'; }
+function addPerson(){
+  const name = document.getElementById('newName').value.trim();
+  const address = document.getElementById('newAddress').value.trim();
+  if(!name){ showToast("Please enter a name", "error"); return; }
+  const funds = {};
+  state.funds.forEach(f => funds[f.id] = 0);
+  state.people.push({ sl: state.nextSl, name, address, funds });
+  state.nextSl += 1;
+  persist();
+  closeAddModal();
+  renderTable();
+  showToast(`Added ${name}`, "success");
+}
+
+function confirmDelete(sl){
+  deleteTargetSl = sl;
+  const person = state.people.find(p=>p.sl===sl);
+  document.getElementById('deleteModalText').textContent =
+    `This will permanently remove ${person ? person.name || 'this person' : 'this person'} and all their fund entries. This can't be undone.`;
+  document.getElementById('deleteModalBackdrop').style.display = 'flex';
+}
+function closeDeleteModal(){
+  document.getElementById('deleteModalBackdrop').style.display = 'none';
+  deleteTargetSl = null;
+}
+function performDelete(){
+  if(deleteTargetSl == null) return;
+  state.people = state.people.filter(p=>p.sl !== deleteTargetSl);
+  persist();
+  closeDeleteModal();
+  renderTable();
+  showToast("Record removed", "success");
+}
+
+/* ================= COLUMN MANAGEMENT ================= */
+function openManageColumns(){
+  renderColumnList();
+  document.getElementById('manageColsModalBackdrop').style.display = 'flex';
+}
+function closeManageColumns(){
+  document.getElementById('manageColsModalBackdrop').style.display = 'none';
+  buildHeader();
+  renderTable();
+}
+function renderColumnList(){
+  const list = document.getElementById('colList');
+  let html = '';
+  state.funds.forEach((fund, i)=>{
+    html += `<div class="col-row">
+      <span class="col-row-num">${i+1}</span>
+      <input type="text" value="${escapeAttr(fund.label)}" oninput="updateColumnLabel(${fund.id}, this.value)" placeholder="Column name">
+      <button class="col-row-delete" title="Remove column" onclick="confirmDeleteColumn(${fund.id})">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>`;
+  });
+  list.innerHTML = html || '<p style="color:var(--ink-soft); font-size:13.5px; padding:12px 0;">No columns yet — add one below.</p>';
+}
+function updateColumnLabel(fundId, value){
+  const fund = state.funds.find(f=>f.id===fundId);
+  if(!fund) return;
+  fund.label = value;
+  persist();
+}
+function addColumn(){
+  const id = state.nextFundId;
+  state.funds.push({ id, label: "New Fund" });
+  state.nextFundId += 1;
+  state.people.forEach(p=>{ if(!p.funds) p.funds = {}; p.funds[id] = 0; });
+  persist();
+  renderColumnList();
+  showToast("Column added — rename it below", "success");
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('#colList input');
+    const last = inputs[inputs.length-1];
+    if(last){ last.focus(); last.select(); }
+  }, 60);
+}
+function confirmDeleteColumn(fundId){
+  if(state.funds.length <= 1){
+    showToast("At least one fund column is required", "error");
+    return;
+  }
+  deleteTargetFundId = fundId;
+  const fund = state.funds.find(f=>f.id===fundId);
+  document.getElementById('deleteColModalText').textContent =
+    `This will permanently remove the "${fund ? fund.label : 'this'}" column and every amount recorded under it for all people. This can't be undone.`;
+  document.getElementById('deleteColModalBackdrop').style.display = 'flex';
+}
+function closeDeleteColModal(){
+  document.getElementById('deleteColModalBackdrop').style.display = 'none';
+  deleteTargetFundId = null;
+}
+function performDeleteColumn(){
+  if(deleteTargetFundId == null) return;
+  state.funds = state.funds.filter(f=>f.id !== deleteTargetFundId);
+  state.people.forEach(p=>{ if(p.funds) delete p.funds[deleteTargetFundId]; });
+  persist();
+  closeDeleteColModal();
+  renderColumnList();
+  showToast("Column removed", "success");
+}
+
+/* ================= CHANGE CREDENTIALS ================= */
+function openChangeCred(){
+  document.getElementById('newUsername').value = '';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('credModalBackdrop').style.display = 'flex';
+}
+function closeChangeCred(){ document.getElementById('credModalBackdrop').style.display = 'none'; }
+function saveCredentials(){
+  const u = document.getElementById('newUsername').value.trim();
+  const p = document.getElementById('newPassword').value;
+  const current = loadCreds();
+  const updated = { username: u || current.username, password: p || current.password };
+  saveCreds(updated);
+  closeChangeCred();
+  showToast("Login details updated", "success");
+}
+
+/* ================= PRINT ================= */
+function printRegister(){
+  const dateStr = new Date().toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('printDate').textContent = `Printed on ${dateStr}`;
+
+  let html = '<thead><tr><th>Sl. No</th><th>Name</th><th>Address</th>';
+  state.funds.forEach(f => html += `<th class="p-fund">${escapeHtml(f.label)}</th>`);
+  html += '</tr></thead><tbody>';
+
+  const totals = {};
+  state.funds.forEach(f => totals[f.id] = 0);
+
+  state.people.forEach(person=>{
+    html += `<tr><td>${person.sl}</td><td>${escapeHtml(person.name)}</td><td>${escapeHtml(person.address)}</td>`;
+    state.funds.forEach(f=>{
+      const val = (person.funds && person.funds[f.id]) || 0;
+      totals[f.id] += Number(val);
+      html += `<td class="p-fund">${val ? formatNumber(val) : '—'}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += `<tr class="p-total"><td colspan="3" style="text-align:right;">TOTAL</td>`;
+  state.funds.forEach(f => html += `<td class="p-fund">${formatNumber(totals[f.id])}</td>`);
+  html += '</tr></tbody>';
+
+  document.getElementById('printTable').innerHTML = html;
+  window.print();
+}
+
+/* ================= UTIL ================= */
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+function formatNumber(n){ return Number(n).toLocaleString('en-IN'); }
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>{ t.className = type; }, 2400);
+}
+
+/* ================= INIT ================= */
+let startupTimedOut = false;
+const startupSafetyTimer = setTimeout(()=>{
+  const loadingEl = document.getElementById('loadingScreen');
+  if(loadingEl && loadingEl.style.display !== 'none'){
+    startupTimedOut = true;
+    showConfigError('Timed out after 15 seconds — the page may have no internet, or the database is unreachable');
+  }
+}, 15000);
+
+function waitForSupabaseLibrary(maxWaitMs){
+  return new Promise((resolve)=>{
+    const start = Date.now();
+    const check = ()=>{
+      if(window.supabase){
+        resolve(true);
+      } else if(Date.now() - start > maxWaitMs){
+        resolve(false);
+      } else {
+        debugStep('waiting for library to load... (' + Math.round((Date.now()-start)/1000) + 's)');
+        setTimeout(check, 300);
+      }
+    };
+    check();
+  });
+}
+
+async function init(){
+  debugStep('init() called — script is running');
+  try{
+    await waitForSupabaseLibrary(12000);
+    const ok = await loadState();
+    clearTimeout(startupSafetyTimer);
+    if(startupTimedOut) return;
+    if(!ok) return; // config error already shown
+    debugStep('building page...');
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    setAdminUI(false); // land directly on the viewer register
+    startPolling();
+    debugStep('done');
+  }catch(e){
+    clearTimeout(startupSafetyTimer);
+    console.error('Startup failed:', e);
+    showConfigError((e && (e.message || e.toString())) || 'Unknown startup error');
+  }
+}
+window.addEventListener('error', function(e){
+  console.error('Uncaught error:', e.error || e.message);
+  const loadingEl = document.getElementById('loadingScreen');
+  const appEl = document.getElementById('app');
+  const detail = (e.error && (e.error.message || e.error.toString())) || e.message || 'Unknown script error';
+  const location = (e.filename ? (e.filename.split('/').pop() + ':' + e.lineno) : '');
+  if(loadingEl && loadingEl.style.display !== 'none'){
+    showConfigError(detail + (location ? ' (' + location + ')' : ''));
+  } else if(appEl && appEl.style.display === 'none' && document.getElementById('loginScreen').style.display !== 'flex'){
+    showConfigError(detail + (location ? ' (' + location + ')' : ''));
+  }
+});
+init();
+</script>
+</body>
+</html>
