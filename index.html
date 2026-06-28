@@ -1130,13 +1130,31 @@ function updateField(sl, field, value){
   persist();
 }
 function updateFund(sl, fundId, value){
-  const person = state.people.find(p=>p.sl===sl);
+  const person = state.people.find(p => p.sl === sl);
   if(!person) return;
+
   if(!person.funds) person.funds = {};
-  const num = value === '' ? 0 : Math.max(0, Number(value) || 0);
-  person.funds[fundId] = num;
+
+  let current = Number(person.funds[fundId] || 0);
+  let newValue = current;
+
+  value = value.trim();
+
+  if(value.startsWith("+")){
+    newValue = current + (Number(value.substring(1)) || 0);
+  }else if(value.startsWith("-")){
+    newValue = Math.max(0, current - (Number(value.substring(1)) || 0));
+  }else if(value === ""){
+    newValue = 0;
+  }else{
+    newValue = Math.max(0, Number(value) || 0);
+  }
+
+  person.funds[fundId] = newValue;
+
   persist();
-  updateTotalsRowOnly();
+  renderTable();
+}
 }
 function updateTotalsRowOnly(){
   const totalRow = document.querySelector('.total-row');
